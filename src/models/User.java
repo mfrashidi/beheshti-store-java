@@ -1,17 +1,21 @@
 package models;
 
+import com.google.gson.annotations.SerializedName;
 import exceptions.RepeatedPhoneNumber;
 
 import java.util.ArrayList;
 
 public class User {
     private String name;
+    @SerializedName("user_id")
     private String userID;
+    @SerializedName("phone")
     private String phoneNumber;
     private String password;
-    private ArrayList<Address> addresses;
-    private ArrayList<Product> favoriteProducts;
-    private ArrayList<Order> orders;
+    private ArrayList<Address> addresses = new ArrayList<>();
+    @SerializedName("favorites")
+    private ArrayList<Product> favoriteProducts = new ArrayList<>();
+    private ArrayList<Order> orders = new ArrayList<>();
 
     public User(String name, String phoneNumber, String password) throws RepeatedPhoneNumber {
         this.name = name;
@@ -62,6 +66,10 @@ public class User {
 
     public void setAddresses(ArrayList<Address> addresses) {
         this.addresses = addresses;
+    }
+
+    public void addAddress(Address address) {
+        addresses.add(address);
     }
 
     public ArrayList<Product> getFavoriteProducts() {
