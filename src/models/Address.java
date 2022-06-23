@@ -1,11 +1,11 @@
 package models;
 
 public class Address {
-    private String name;
+    private String title;
     private String address;
 
-    public Address(String name, String address) {
-        this.name = name;
+    public Address(String title, String address) {
+        this.title = title;
         this.address = address;
     }
 
@@ -17,11 +17,11 @@ public class Address {
         this.address = address;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }
