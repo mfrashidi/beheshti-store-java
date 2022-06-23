@@ -3,7 +3,15 @@ package models;
 import com.google.gson.annotations.SerializedName;
 import exceptions.RepeatedPhoneNumber;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+
+import static utils.encryption.decrypt;
+import static utils.encryption.encrypt;
 
 public class User {
     private String name;
@@ -21,7 +29,11 @@ public class User {
         this.name = name;
         if (!this.isUniquePhoneNumber()) throw new RepeatedPhoneNumber();
         this.phoneNumber = phoneNumber;
-        this.password = password;
+        try {
+            this.password = encrypt(password);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
     }
 
     private boolean isUniquePhoneNumber() {
@@ -53,11 +65,20 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        try {
+            return decrypt(password);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        try {
+            this.password = encrypt(password);
+        } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
+            e.printStackTrace();
+        }
     }
 
     public ArrayList<Address> getAddresses() {
