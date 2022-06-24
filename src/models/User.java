@@ -10,6 +10,7 @@ import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static utils.encryption.decrypt;
 import static utils.encryption.encrypt;
@@ -124,5 +125,18 @@ public class User {
 
     public static User fromJson(String json) {
         return new Gson().fromJson(json, User.class);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return userID.equals(user.userID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userID);
     }
 }
