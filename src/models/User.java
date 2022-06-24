@@ -16,8 +16,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Random;
 
-import static utils.encryption.decrypt;
-import static utils.encryption.encrypt;
+import static utils.Encryption.decrypt;
+import static utils.Encryption.encrypt;
 
 public class User {
     private String name;
@@ -26,6 +26,7 @@ public class User {
     @SerializedName("phone")
     private String phoneNumber;
     private String password;
+    private String email;
     private ArrayList<Address> addresses = new ArrayList<>();
     @SerializedName("favorites")
     private ArrayList<Product> favoriteProducts = new ArrayList<>();
@@ -71,6 +72,14 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getPassword() {
@@ -127,7 +136,8 @@ public class User {
     }
 
     public String toJson() {
-        return new Gson().toJson(this);
+        String json = new Gson().toJson(this);
+        return json.replaceFirst(",\"password\":\".*?\"", "");
     }
 
     public static User fromJson(String json) {
@@ -149,6 +159,15 @@ public class User {
             if (user.getUserID().equals(userID))
                 return user;
         throw new UserDoesNotExists();
+    }
+
+    public static String authenticate(String phoneNumber, String password) {
+        ArrayList<User> users = DBHandler.getUsers();
+        for (User user : users) {
+            if (user.getPhoneNumber().equals(phoneNumber) && user.getPassword().equals(password))
+                return user.getUserID();
+        }
+        return "FAILED";
     }
 
     @Override
