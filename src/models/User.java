@@ -102,12 +102,20 @@ public class User {
         this.favoriteProducts = favoriteProducts;
     }
 
+    public void addAddress(Product product) {
+        favoriteProducts.add(product);
+    }
+
     public ArrayList<Order> getOrders() {
         return orders;
     }
 
     public void setOrders(ArrayList<Order> orders) {
         this.orders = orders;
+    }
+
+    public void addOrder(Order order) {
+        orders.add(order);
     }
 
     public String toJson() {
