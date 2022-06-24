@@ -155,4 +155,9 @@ public class User {
     public int hashCode() {
         return Objects.hash(userID);
     }
+
+    @Override
+    public String toString() {
+        return name + " (" + userID + ")";
+    }
 }
