@@ -1,2 +1,4 @@
-package exceptions;public class UserDoesNotExists {
+package exceptions;
+
+public class UserDoesNotExists extends Exception{
 }
