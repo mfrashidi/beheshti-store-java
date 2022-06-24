@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName;
 import database.DBHandler;
 import exceptions.RepeatedPhoneNumber;
 import exceptions.UserAlreadyExists;
+import exceptions.UserDoesNotExists;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -141,6 +142,13 @@ public class User {
         }
 
         return sb.toString().substring(0, 10);
+    }
+
+    public static User getUserByID(String userID) throws UserDoesNotExists {
+        for (User user : DBHandler.getUsers())
+            if (user.getUserID().equals(userID))
+                return user;
+        throw new UserDoesNotExists();
     }
 
     @Override
