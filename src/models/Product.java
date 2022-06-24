@@ -1,20 +1,28 @@
 package models;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.Map;
 
 public class Product {
     private String name;
     private int price;
+    @SerializedName("product_id")
     private String productID;
     private String image;
+    @SerializedName("images_count")
     private int imagesCount;
+    @SerializedName("sub_category")
     private SubCategory subCategory;
     private int stars;
+    @SerializedName("has_color")
     private boolean hasColor;
     private ArrayList<Color> colors;
     private Map<String, String> description;
     private User seller;
+    @SerializedName("has_size")
     private boolean hasSize;
     private ArrayList<Integer> sizes;
 
@@ -124,5 +132,13 @@ public class Product {
 
     public void setSizes(ArrayList<Integer> sizes) {
         this.sizes = sizes;
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static Product fromJson(String json) {
+        return new Gson().fromJson(json, Product.class);
     }
 }
