@@ -1,5 +1,6 @@
 package models;
 
+import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import exceptions.RepeatedPhoneNumber;
 
@@ -107,5 +108,13 @@ public class User {
 
     public void setOrders(ArrayList<Order> orders) {
         this.orders = orders;
+    }
+
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
+
+    public static User fromJson(String json) {
+        return new Gson().fromJson(json, User.class);
     }
 }
