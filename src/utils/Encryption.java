@@ -6,7 +6,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-public class encryption {
+public class Encryption {
     private static final String key = "rvkNgZqZNTqTWgQpiK3FXw==";
 
     public static String encrypt(String input) throws NoSuchPaddingException, NoSuchAlgorithmException,
