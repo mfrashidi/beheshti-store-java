@@ -2,7 +2,9 @@ package models;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import database.DBHandler;
 import exceptions.RepeatedPhoneNumber;
+import exceptions.UserAlreadyExists;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
@@ -11,6 +13,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.Random;
 
 import static utils.encryption.decrypt;
 import static utils.encryption.encrypt;
@@ -27,7 +30,8 @@ public class User {
     private ArrayList<Product> favoriteProducts = new ArrayList<>();
     private ArrayList<Order> orders = new ArrayList<>();
 
-    public User(String name, String phoneNumber, String password) throws RepeatedPhoneNumber {
+    public User(String name, String phoneNumber, String password, String userID)
+            throws RepeatedPhoneNumber, UserAlreadyExists {
         this.name = name;
         if (!this.isUniquePhoneNumber()) throw new RepeatedPhoneNumber();
         this.phoneNumber = phoneNumber;
@@ -36,6 +40,8 @@ public class User {
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
+        this.userID = userID;
+        if (DBHandler.getUsers().contains(this)) throw new UserAlreadyExists();
     }
 
     private boolean isUniquePhoneNumber() {
@@ -125,6 +131,16 @@ public class User {
 
     public static User fromJson(String json) {
         return new Gson().fromJson(json, User.class);
+    }
+
+    public static String getRandomUserID(){
+        Random r = new Random();
+        StringBuffer sb = new StringBuffer();
+        while(sb.length() < 10){
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+
+        return sb.toString().substring(0, 10);
     }
 
     @Override
