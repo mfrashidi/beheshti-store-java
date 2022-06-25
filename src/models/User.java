@@ -132,7 +132,7 @@ public class User {
         this.favoriteProducts = favoriteProducts;
     }
 
-    public void addAddress(Product product) {
+    public void addFavoriteProduct(Product product) {
         favoriteProducts.add(product);
     }
 
@@ -195,6 +195,15 @@ public class User {
         ArrayList<User> users = DBHandler.getUsers();
         for (User user : users) {
             if (user.getPhoneNumber().equals(phoneNumber) && user.getPassword().equals(password))
+                return user.getUserID();
+        }
+        return "FAILED";
+    }
+
+    public static String authenticate(String token) {
+        ArrayList<User> users = DBHandler.getUsers();
+        for (User user : users) {
+            if (user.getToken().equals(token))
                 return user.getUserID();
         }
         return "FAILED";
