@@ -200,6 +200,11 @@ public class User {
         return "FAILED";
     }
 
+    public void save() {
+        DBHandler.removeUser(this);
+        DBHandler.addUser(this);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

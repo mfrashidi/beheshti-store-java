@@ -161,6 +161,11 @@ public class Product {
         return new Gson().fromJson(json, Product.class);
     }
 
+    public void save() {
+        DBHandler.removeProduct(this);
+        DBHandler.addProducts(this);
+    }
+
     @Override
     public String toString() {
         return name;
