@@ -1,6 +1,8 @@
 package network;
 
+import exceptions.ProductDoesNotExists;
 import exceptions.UserDoesNotExists;
+import models.Product;
 import models.User;
 import utils.JUI;
 
@@ -60,14 +62,18 @@ class ClientHandler implements Runnable {
             JUI.changeColor(JUI.Colors.WHITE);
             System.out.println(command);
             if (command.startsWith("AUTHENTICATE=")) {
-                String phoneNumber = command.replace("AUTHENTICATE=", "").split(", ")[0];
-                String password = command.replace("AUTHENTICATE=", "").split(", ")[1];
+                String phoneNumber = command.split("=")[1].split(", ")[0];
+                String password = command.split("=")[1].split(", ")[1];
                 String userID = User.authenticate(phoneNumber, password);
                 if (userID.equals("FAILED"))
                     response = userID;
                 else {
                     response = User.getUserByID(userID).toJson();
                 }
+            } else if (command.startsWith("GET_PRODUCT=")) {
+                response = Product.getProductByID(command.split("=")[1]).toJson();
+            } else if (command.startsWith("GET_USER_NAME=")) {
+                response = User.getUserByID(command.split("=")[1]).getName();
             }
             JUI.changeColor(JUI.Colors.BOLD_YELLOW);
             System.out.print("> Response: ");
@@ -76,7 +82,7 @@ class ClientHandler implements Runnable {
             dos.writeUTF(response);
             dos.flush();
             System.out.println("------------------------------------------------------------------");
-        } catch (IOException | UserDoesNotExists e) {
+        } catch (IOException | UserDoesNotExists | ProductDoesNotExists e) {
             e.printStackTrace();
         }
     }
