@@ -47,7 +47,10 @@ public class User {
     }
 
     private boolean isUniquePhoneNumber() {
-        return true; // TODO: Handle repeated phone number
+        for (User user : DBHandler.getUsers())
+            if (user.getPhoneNumber().equals(phoneNumber))
+                return false;
+        return true;
     }
 
     public String getName() {
