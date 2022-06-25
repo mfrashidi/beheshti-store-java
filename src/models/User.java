@@ -31,6 +31,7 @@ public class User {
     @SerializedName("favorites")
     private ArrayList<Product> favoriteProducts = new ArrayList<>();
     private ArrayList<Order> orders = new ArrayList<>();
+    private String token;
 
     public User(String name, String phoneNumber, String password, String userID)
             throws RepeatedPhoneNumber, UserAlreadyExists {
@@ -43,6 +44,7 @@ public class User {
             e.printStackTrace();
         }
         this.userID = userID;
+        this.token = User.generateToken();
         if (DBHandler.getUsers().contains(this)) throw new UserAlreadyExists();
     }
 
@@ -114,6 +116,14 @@ public class User {
         addresses.add(address);
     }
 
+    public String getToken() {
+        return token;
+    }
+
+    public void updateToken() {
+        this.token = User.generateToken();
+    }
+
     public ArrayList<Product> getFavoriteProducts() {
         return favoriteProducts;
     }
@@ -155,6 +165,16 @@ public class User {
         }
 
         return sb.toString().substring(0, 10);
+    }
+
+    public static String generateToken(){
+        Random r = new Random();
+        StringBuffer sb = new StringBuffer();
+        while(sb.length() < 64){
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+
+        return sb.toString().substring(0, 64);
     }
 
     public static User getUserByID(String userID) throws UserDoesNotExists {
