@@ -184,6 +184,13 @@ public class User {
         throw new UserDoesNotExists();
     }
 
+    public static User getUserByToken(String token) throws UserDoesNotExists {
+        for (User user : DBHandler.getUsers())
+            if (user.getToken().equals(token))
+                return user;
+        throw new UserDoesNotExists();
+    }
+
     public static String authenticate(String phoneNumber, String password) {
         ArrayList<User> users = DBHandler.getUsers();
         for (User user : users) {
