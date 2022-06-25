@@ -2,9 +2,14 @@ package models;
 
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
+import database.DBHandler;
+import exceptions.ProductDoesNotExists;
+import exceptions.UserDoesNotExists;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 
 public class Product {
     private String name;
@@ -15,19 +20,23 @@ public class Product {
     @SerializedName("images_count")
     private int imagesCount;
     @SerializedName("sub_category")
-    private SubCategory subCategory;
+    private String subCategory;
     private int stars;
     @SerializedName("has_color")
     private boolean hasColor;
     private ArrayList<Color> colors;
     private Map<String, String> description;
-    private User seller;
+    private String seller;
     @SerializedName("has_size")
     private boolean hasSize;
-    private ArrayList<Integer> sizes;
+    private ArrayList<Double> sizes;
 
-    public static Product getProductByID(String id) {
-        return null; // TODO: Handle this
+
+    public static Product getProductByID(String productID) throws ProductDoesNotExists {
+        for (Product product : DBHandler.getProducts())
+            if (product.getProductID().equals(productID))
+                return product;
+        throw new ProductDoesNotExists();
     }
 
     public String getName() {
@@ -70,11 +79,11 @@ public class Product {
         this.imagesCount = imagesCount;
     }
 
-    public SubCategory getSubCategory() {
+    public String getSubCategory() {
         return subCategory;
     }
 
-    public void setSubCategory(SubCategory subCategory) {
+    public void setSubCategory(String subCategory) {
         this.subCategory = subCategory;
     }
 
@@ -110,11 +119,11 @@ public class Product {
         this.description = description;
     }
 
-    public User getSeller() {
-        return seller;
+    public User getSeller() throws UserDoesNotExists {
+        return User.getUserByID(seller);
     }
 
-    public void setSeller(User seller) {
+    public void setSeller(String seller) {
         this.seller = seller;
     }
 
@@ -126,12 +135,22 @@ public class Product {
         this.hasSize = hasSize;
     }
 
-    public ArrayList<Integer> getSizes() {
+    public ArrayList<Double> getSizes() {
         return sizes;
     }
 
-    public void setSizes(ArrayList<Integer> sizes) {
+    public void setSizes(ArrayList<Double> sizes) {
         this.sizes = sizes;
+    }
+
+    public static String getRandomProductID(){
+        Random r = new Random();
+        StringBuffer sb = new StringBuffer();
+        while(sb.length() < 10){
+            sb.append(Integer.toHexString(r.nextInt()));
+        }
+
+        return sb.toString().substring(0, 10);
     }
 
     public String toJson() {
@@ -140,5 +159,23 @@ public class Product {
 
     public static Product fromJson(String json) {
         return new Gson().fromJson(json, Product.class);
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return productID.equals(product.productID);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(productID);
     }
 }
