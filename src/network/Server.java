@@ -69,11 +69,13 @@ class ClientHandler implements Runnable {
                 if (userID.equals("FAILED"))
                     response = userID;
                 else {
-                    response = User.getUserByID(userID).toJson();
+                    response = User.getUserByID(userID).getToken();
                     isAuthenticated = true;
                 }
             } if (isAuthenticated) {
-                if (command.startsWith("GET_PRODUCT=")) {
+                if (command.startsWith("GET_USER=")) {
+                    response = User.getUserByToken(command.split("=")[1]).toJson();
+                } else if (command.startsWith("GET_PRODUCT=")) {
                     response = Product.getProductByID(command.split("=")[1]).toJson();
                 } else if (command.startsWith("GET_USER_NAME=")) {
                     response = User.getUserByID(command.split("=")[1]).getName();
