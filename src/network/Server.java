@@ -48,6 +48,7 @@ class ClientHandler implements Runnable {
 
     @Override
     public void run() {
+        boolean isAuthenticated = false;
         String command;
         String response = "";
         try (DataInputStream dis = new DataInputStream(socket.getInputStream());
@@ -69,11 +70,14 @@ class ClientHandler implements Runnable {
                     response = userID;
                 else {
                     response = User.getUserByID(userID).toJson();
+                    isAuthenticated = true;
                 }
-            } else if (command.startsWith("GET_PRODUCT=")) {
-                response = Product.getProductByID(command.split("=")[1]).toJson();
-            } else if (command.startsWith("GET_USER_NAME=")) {
-                response = User.getUserByID(command.split("=")[1]).getName();
+            } if (isAuthenticated) {
+                if (command.startsWith("GET_PRODUCT=")) {
+                    response = Product.getProductByID(command.split("=")[1]).toJson();
+                } else if (command.startsWith("GET_USER_NAME=")) {
+                    response = User.getUserByID(command.split("=")[1]).getName();
+                }
             }
             JUI.changeColor(JUI.Colors.BOLD_YELLOW);
             System.out.print("> Response: ");
