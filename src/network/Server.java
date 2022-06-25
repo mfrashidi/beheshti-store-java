@@ -2,6 +2,7 @@ package network;
 
 import exceptions.ProductDoesNotExists;
 import exceptions.UserDoesNotExists;
+import models.Address;
 import models.Product;
 import models.User;
 import utils.JUI;
@@ -51,6 +52,7 @@ class ClientHandler implements Runnable {
         boolean isAuthenticated = false;
         String command;
         String response = "";
+        User user = null;
         try (DataInputStream dis = new DataInputStream(socket.getInputStream());
              DataOutputStream dos = new DataOutputStream(socket.getOutputStream())){
             while (true) {
@@ -75,7 +77,8 @@ class ClientHandler implements Runnable {
                     if (userID.equals("FAILED"))
                         response = userID;
                     else {
-                        response = User.getUserByID(userID).getToken();
+                        user = User.getUserByID(userID);
+                        response = user.getToken();
                         isAuthenticated = true;
                     }
                 } if (isAuthenticated) {
@@ -85,6 +88,27 @@ class ClientHandler implements Runnable {
                         response = Product.getProductByID(command.split("=")[1]).toJson();
                     } else if (command.startsWith("GET_USER_NAME=")) {
                         response = User.getUserByID(command.split("=")[1]).getName();
+                    } else if (command.startsWith("ADD_LOCATION=")) {
+                        String location = command.split("=")[1];
+                        user.addAddress(new Address(location.split("; ")[0], location.split("; ")[1]));
+                        user.save();
+                        response = "DONE";
+                    } else if (command.startsWith("ADD_FAVORITE=")) {
+                        user.addFavoriteProduct(Product.getProductByID(command.split("=")[1]));
+                        user.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_NAME=")) {
+                        user.setName(command.split("=")[1]);
+                        user.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_EMAIL=")) {
+                        user.setEmail(command.split("=")[1]);
+                        user.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_PASSWORD=")) {
+                        user.setPassword(command.split("=")[1]);
+                        user.save();
+                        response = "DONE";
                     }
                 }
                 JUI.changeColor(JUI.Colors.BOLD_YELLOW);
