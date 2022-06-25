@@ -3,6 +3,7 @@ package network;
 import exceptions.ProductDoesNotExists;
 import exceptions.UserDoesNotExists;
 import models.Address;
+import models.Color;
 import models.Product;
 import models.User;
 import utils.JUI;
@@ -108,6 +109,30 @@ class ClientHandler implements Runnable {
                     } else if (command.startsWith("CHANGE_PASSWORD=")) {
                         user.setPassword(command.split("=")[1]);
                         user.save();
+                        response = "DONE";
+                    } else if (command.startsWith("ADD_COLOR_PRODUCT=")) {
+                        String[] p = command.split("=");
+                        Product product = Product.getProductByID(p[0]);
+                        product.addColor(new Color(p[1], p[2]));
+                        product.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_PRODUCT_CATEGORY=")) {
+                        String[] p = command.split("=");
+                        Product product = Product.getProductByID(p[0]);
+                        product.setSubCategory(p[1]);
+                        product.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_PRODUCT_PRICE=")) {
+                        String[] p = command.split("=");
+                        Product product = Product.getProductByID(p[0]);
+                        product.setPrice(Integer.parseInt(p[1]));
+                        product.save();
+                        response = "DONE";
+                    } else if (command.startsWith("CHANGE_PRODUCT_IMAGE=")) {
+                        String[] p = command.split("=");
+                        Product product = Product.getProductByID(p[0]);
+                        product.setImage(p[1]);
+                        product.save();
                         response = "DONE";
                     }
                 }
