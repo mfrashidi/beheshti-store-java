@@ -111,6 +111,10 @@ public class Product {
         this.colors = colors;
     }
 
+    public void addColor(Color color) {
+        colors.add(color);
+    }
+
     public Map<String, String> getDescription() {
         return description;
     }
@@ -154,6 +158,8 @@ public class Product {
     }
 
     public String toJson() {
+        hasColor = !colors.isEmpty();
+        hasSize = !sizes.isEmpty();
         return new Gson().toJson(this);
     }
 
