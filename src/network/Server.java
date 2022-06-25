@@ -53,41 +53,48 @@ class ClientHandler implements Runnable {
         String response = "";
         try (DataInputStream dis = new DataInputStream(socket.getInputStream());
              DataOutputStream dos = new DataOutputStream(socket.getOutputStream())){
-            command = dis.readUTF();
-            JUI.changeColor(JUI.Colors.BOLD_YELLOW);
-            System.out.print("> Time: ");
-            JUI.changeColor(JUI.Colors.WHITE);
-            System.out.println(new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime()));
-            JUI.changeColor(JUI.Colors.BOLD_YELLOW);
-            System.out.print("> Command: ");
-            JUI.changeColor(JUI.Colors.WHITE);
-            System.out.println(command);
-            if (command.startsWith("AUTHENTICATE=")) {
-                String phoneNumber = command.split("=")[1].split(", ")[0];
-                String password = command.split("=")[1].split(", ")[1];
-                String userID = User.authenticate(phoneNumber, password);
-                if (userID.equals("FAILED"))
-                    response = userID;
-                else {
-                    response = User.getUserByID(userID).getToken();
-                    isAuthenticated = true;
+            while (true) {
+                command = dis.readUTF();
+                JUI.changeColor(JUI.Colors.BOLD_YELLOW);
+                System.out.print("> Time: ");
+                JUI.changeColor(JUI.Colors.WHITE);
+                System.out.println(new SimpleDateFormat("HH:mm").format(Calendar.getInstance().getTime()));
+                JUI.changeColor(JUI.Colors.BOLD_YELLOW);
+                System.out.print("> Command: ");
+                JUI.changeColor(JUI.Colors.WHITE);
+                System.out.println(command);
+                if (command.startsWith("AUTHENTICATE=")) {
+                    String userID;
+                    if (command.contains(",")){
+                        String phoneNumber = command.split("=")[1].split(", ")[0];
+                        String password = command.split("=")[1].split(", ")[1];
+                        userID = User.authenticate(phoneNumber, password);
+                    }
+                    else userID = User.authenticate(command.split("=")[1]);
+
+                    if (userID.equals("FAILED"))
+                        response = userID;
+                    else {
+                        response = User.getUserByID(userID).getToken();
+                        isAuthenticated = true;
+                    }
+                } if (isAuthenticated) {
+                    if (command.startsWith("GET_USER=")) {
+                        response = User.getUserByToken(command.split("=")[1]).toJson();
+                    } else if (command.startsWith("GET_PRODUCT=")) {
+                        response = Product.getProductByID(command.split("=")[1]).toJson();
+                    } else if (command.startsWith("GET_USER_NAME=")) {
+                        response = User.getUserByID(command.split("=")[1]).getName();
+                    }
                 }
-            } if (isAuthenticated) {
-                if (command.startsWith("GET_USER=")) {
-                    response = User.getUserByToken(command.split("=")[1]).toJson();
-                } else if (command.startsWith("GET_PRODUCT=")) {
-                    response = Product.getProductByID(command.split("=")[1]).toJson();
-                } else if (command.startsWith("GET_USER_NAME=")) {
-                    response = User.getUserByID(command.split("=")[1]).getName();
-                }
+                JUI.changeColor(JUI.Colors.BOLD_YELLOW);
+                System.out.print("> Response: ");
+                JUI.changeColor(JUI.Colors.WHITE);
+                System.out.println(response);
+                dos.writeUTF(response);
+                dos.flush();
+                System.out.println("------------------------------------------------------------------");
             }
-            JUI.changeColor(JUI.Colors.BOLD_YELLOW);
-            System.out.print("> Response: ");
-            JUI.changeColor(JUI.Colors.WHITE);
-            System.out.println(response);
-            dos.writeUTF(response);
-            dos.flush();
-            System.out.println("------------------------------------------------------------------");
         } catch (IOException | UserDoesNotExists | ProductDoesNotExists e) {
             e.printStackTrace();
         }
