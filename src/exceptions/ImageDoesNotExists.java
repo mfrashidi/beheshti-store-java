@@ -1,4 +1,4 @@
 package exceptions;
 
-public class OrderDoesNotExists extends Exception{
+public class ImageDoesNotExists extends Exception{
 }
