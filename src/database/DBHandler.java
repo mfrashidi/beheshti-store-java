@@ -1,5 +1,7 @@
 package database;
 
+import models.Image;
+import models.Order;
 import models.Product;
 import models.User;
 
@@ -14,11 +16,13 @@ public class DBHandler {
     private final static String initPath = "";
     private final static String usersFile = initPath + "users.json";
     private final static String productsFile = initPath + "products.json";
+    private final static String ordersFile = initPath + "orders.json";
+    private final static String imagesFile = initPath + "images.json";
 
     private static void saveUsers(ArrayList<User> users) {
         try (FileWriter fileWriter = new FileWriter(usersFile)){
             for (User user : users)
-                fileWriter.write(user.toJson() + "\n");
+                fileWriter.write(user.toJson(true) + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -88,4 +92,79 @@ public class DBHandler {
         products.remove(product);
         saveProducts(products);
     }
+
+    private static void saveOrders(ArrayList<Order> orders) {
+        try (FileWriter fileWriter = new FileWriter(ordersFile)){
+            for (Order order : orders)
+                fileWriter.write(order.toJson() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<Order> getOrders() {
+        ArrayList<Order> orders = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File(ordersFile))){
+            while (scanner.hasNextLine())
+                orders.add(Order.fromJson(scanner.nextLine()));
+        } catch (FileNotFoundException e) {
+            try (FileWriter fileWriter = new FileWriter(ordersFile)) {
+                fileWriter.write("");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return orders;
+    }
+
+    public static void addOrder(Order order) {
+        ArrayList<Order> orders = getOrders();
+        if (!orders.contains(order))
+            orders.add(order);
+        saveOrders(orders);
+    }
+
+    public static void removeOrder(Order order) {
+        ArrayList<Order> orders = getOrders();
+        orders.remove(order);
+        saveOrders(orders);
+    }
+
+    private static void saveImages(ArrayList<Image> images) {
+        try (FileWriter fileWriter = new FileWriter(imagesFile)){
+            for (Image image : images)
+                fileWriter.write(image.toJson() + "\n");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static ArrayList<Image> getImages() {
+        ArrayList<Image> images = new ArrayList<>();
+        try (Scanner scanner = new Scanner(new File(imagesFile))){
+            while (scanner.hasNextLine())
+                images.add(Image.fromJson(scanner.nextLine()));
+        } catch (FileNotFoundException e) {
+            try (FileWriter fileWriter = new FileWriter(imagesFile)) {
+                fileWriter.write("");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return images;
+    }
+
+    public static void addImage(Image image) {
+        ArrayList<Image> images = getImages();
+        if (!images.contains(image))
+            images.add(image);
+        saveImages(images);
+    }
+
+    public static void removeImage(Image image) {
+        ArrayList<Image> images = getImages();
+        images.remove(image);
+        saveImages(images);
+    }
+
 }
