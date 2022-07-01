@@ -340,6 +340,9 @@ class ClientHandler implements Runnable {
                             product.save();
                             response = "DONE";
                         }
+                    } else if (command.startsWith("REMOVE_PRODUCT=")) {
+                        DBHandler.removeProduct(Product.getProductByID(command.split("=")[1]));
+                        response = "DONE";
                     } else if (command.startsWith("GET_ORDER=")) {
                         response = Order.getOrderByID(command.split("=")[1]).toJson();
                     } else if (command.startsWith("GET_IMAGE=")) {
