@@ -6,10 +6,7 @@ import database.DBHandler;
 import exceptions.ProductDoesNotExists;
 import exceptions.UserDoesNotExists;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 
 public class Product {
     private String name;
@@ -24,12 +21,15 @@ public class Product {
     private int stars;
     @SerializedName("has_color")
     private boolean hasColor;
-    private ArrayList<Color> colors;
-    private Map<String, String> description;
+    private int stock;
+    private ArrayList<Color> colors = new ArrayList<>();
+    private Map<String, String> description = new HashMap<>();
     private String seller;
+    @SerializedName("seller_name")
+    private String sellerName;
     @SerializedName("has_size")
     private boolean hasSize;
-    private ArrayList<Double> sizes;
+    private ArrayList<Double> sizes = new ArrayList<>();
 
 
     public static Product getProductByID(String productID) throws ProductDoesNotExists {
@@ -131,6 +131,14 @@ public class Product {
         this.seller = seller;
     }
 
+    public String getSellerName() {
+        return sellerName;
+    }
+
+    public void setSellerName(String sellerName) {
+        this.sellerName = sellerName;
+    }
+
     public boolean isHasSize() {
         return hasSize;
     }
@@ -147,6 +155,23 @@ public class Product {
         this.sizes = sizes;
     }
 
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
+    }
+
+    public static ArrayList<String> getProductsByCategory(String id) {
+        ArrayList<Product> products = DBHandler.getProducts();
+        ArrayList<String> productIDs = new ArrayList<>();
+        for (Product product : products)
+            if (product.getSubCategory().startsWith(id))
+                productIDs.add(product.getProductID());
+        return productIDs;
+    }
+
     public static String getRandomProductID(){
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
@@ -160,6 +185,17 @@ public class Product {
     public String toJson() {
         hasColor = !colors.isEmpty();
         hasSize = !sizes.isEmpty();
+//        name = unNormalize(name);
+//        Map<String, String> desc = new HashMap<>();
+//        for (String d : description.keySet())
+//            desc.put(unNormalize(d), unNormalize(description.get(d)));
+//        description = desc;
+//        ArrayList<Color> colorArrayList = new ArrayList<>();
+//        for (Color color : colors) {
+//            color.setName(unNormalize(color.getName()));
+//            colorArrayList.add(color);
+//        }
+//        colors = colorArrayList;
         return new Gson().toJson(this);
     }
 

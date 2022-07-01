@@ -3,6 +3,7 @@ package models;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 import database.DBHandler;
+import exceptions.OrderDoesNotExists;
 import exceptions.RepeatedPhoneNumber;
 import exceptions.UserAlreadyExists;
 import exceptions.UserDoesNotExists;
@@ -12,15 +13,16 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static utils.Encryption.decrypt;
 import static utils.Encryption.encrypt;
 
 public class User {
     private String name;
+    @SerializedName("last_name")
+    private String lastName;
     @SerializedName("user_id")
     private String userID;
     @SerializedName("phone")
@@ -28,27 +30,35 @@ public class User {
     private String password;
     private String email;
     private ArrayList<Address> addresses = new ArrayList<>();
+    @SerializedName("active_address")
+    private int activeAddress = 0;
     @SerializedName("favorites")
-    private ArrayList<Product> favoriteProducts = new ArrayList<>();
-    private ArrayList<Order> orders = new ArrayList<>();
+    private Set<String> favoriteProducts = new HashSet<>();
+    private ArrayList<String> cart = new ArrayList<>();
+    private ArrayList<String> orders = new ArrayList<>();
     private String token;
+    @SerializedName("profile_picture")
+    private String profilePicture;
 
-    public User(String name, String phoneNumber, String password, String userID)
+    public User(String name, String lastName, String phoneNumber, String email, String password)
             throws RepeatedPhoneNumber, UserAlreadyExists {
         this.name = name;
-        if (!this.isUniquePhoneNumber()) throw new RepeatedPhoneNumber();
+        this.lastName = lastName;
+        if (!this.isUniquePhoneNumber(phoneNumber)) throw new RepeatedPhoneNumber();
         this.phoneNumber = phoneNumber;
+        this.email = email;
         try {
             this.password = encrypt(password);
         } catch (NoSuchPaddingException | NoSuchAlgorithmException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
-        this.userID = userID;
+        this.userID = User.getRandomUserID();
         this.token = User.generateToken();
         if (DBHandler.getUsers().contains(this)) throw new UserAlreadyExists();
+        profilePicture = "default_user";
     }
 
-    private boolean isUniquePhoneNumber() {
+    private boolean isUniquePhoneNumber(String phoneNumber) {
         for (User user : DBHandler.getUsers())
             if (user.getPhoneNumber().equals(phoneNumber))
                 return false;
@@ -61,6 +71,22 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 
     public String getUserID() {
@@ -116,6 +142,18 @@ public class User {
         addresses.add(address);
     }
 
+    public int getActiveAddress() {
+        return activeAddress;
+    }
+
+    public void setActiveAddress(int activeAddress) {
+        this.activeAddress = activeAddress;
+    }
+
+    public void removeAddress(int index) {
+        addresses.remove(index);
+    }
+
     public String getToken() {
         return token;
     }
@@ -124,31 +162,59 @@ public class User {
         this.token = User.generateToken();
     }
 
-    public ArrayList<Product> getFavoriteProducts() {
+    public Set<String> getFavoriteProducts() {
         return favoriteProducts;
     }
 
-    public void setFavoriteProducts(ArrayList<Product> favoriteProducts) {
+    public void setFavoriteProducts(Set<String> favoriteProducts) {
         this.favoriteProducts = favoriteProducts;
     }
 
-    public void addFavoriteProduct(Product product) {
+    public void addFavoriteProduct(String product) {
         favoriteProducts.add(product);
     }
 
-    public ArrayList<Order> getOrders() {
+    public void removeFavoriteProduct(String product) {
+        favoriteProducts.remove(product);
+    }
+
+    public ArrayList<Order> getOrders() throws OrderDoesNotExists {
+        ArrayList<Order> orders = new ArrayList<>();
+        for (String orderID : this.orders) orders.add(Order.getOrderByID(orderID));
         return orders;
     }
 
     public void setOrders(ArrayList<Order> orders) {
-        this.orders = orders;
+        this.orders = (ArrayList<String>) orders.stream().map(Order::getOrderID).collect(Collectors.toList());
     }
 
     public void addOrder(Order order) {
-        orders.add(order);
+        orders.add(order.getOrderID());
     }
 
-    public String toJson() {
+    public ArrayList<String> getCart() {
+        return cart;
+    }
+
+    public void setCart(ArrayList<String> cart) {
+        this.cart = cart;
+    }
+
+    public void addToCart(String productID) {
+        cart.add(productID);
+    }
+
+    public void removeFromCart(String productID) {
+        cart.removeAll(Collections.singleton(productID));
+    }
+
+    public void removeFromCartOnce(String productID) {
+        cart.remove(productID);
+    }
+
+    public String toJson(boolean withPassword) {
+        if (withPassword)
+            return new Gson().toJson(this);
         String json = new Gson().toJson(this);
         return json.replaceFirst(",\"password\":\".*?\"", "");
     }
